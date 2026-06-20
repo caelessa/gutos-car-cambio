@@ -185,6 +185,30 @@ def inicio():
 
     modelo = request.args.get("modelo", "")
 
+    conn_modelos = sqlite3.connect("oleocambio.db")
+
+    modelos = pd.read_sql(
+        """
+        SELECT DISTINCT MODELO
+        FROM tb_aplicacao
+        WHERE MODELO IS NOT NULL
+        ORDER BY MODELO
+        """,
+        conn_modelos
+    )
+
+    conn_modelos.close()
+
+    opcoes_modelo = ""
+
+    for _, row in modelos.iterrows():
+
+        opcoes_modelo += (
+            f'<option value="{row["MODELO"]}">'
+            f'{row["MODELO"]}'
+            f'</option>'
+        )
+
     html = f"""
     <html>
     <head>
@@ -256,18 +280,35 @@ def inicio():
 
         <div class="container">
 
-            <h1>🚗 Gutos Car Autopeças</h1>
+           <div style="text-align:center;">
 
-            <h2>Consulta de Óleo de Câmbio</h2>
+    <img
+        src="/static/logo.jpg"
+        width="350"
+    >
+
+    <h2>Consulta de Óleo de Câmbio</h2>
+
+</div>
 
             <form method="get">
 
-                <input
-                    type="text"
-                    name="modelo"
-                    placeholder="Digite o modelo"
-                    value="{modelo}"
-                >
+                <select
+    name="modelo"
+    style="
+        padding:10px;
+        width:320px;
+        font-size:16px;
+    "
+>
+
+    <option value="">
+        Selecione o veículo
+    </option>
+
+    {opcoes_modelo}
+
+</select>
 
                 <button type="submit">
                     Consultar
